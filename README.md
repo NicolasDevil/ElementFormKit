@@ -16,7 +16,7 @@
 | 参数         |  说明  |  可选值  |   类型   |  默认值  |  实例
 | -------- | :-----  |  :----: |  :----:   |  :----: | :----: |
 | label |  该表单项名称  |   -   |  String  |   -   |  -
-| type |  该表单项类型  |   -   |  String  |   -   |  -
+| type |  该表单项类型  |   text（文本）、input、select、textarea、checkbox、date（日期选择器）、daterange（日期区间选择器）、region(地区选择器)   |  String  |   -   |  -
 | placeholder |  该表单项placeholder  |   -   |  String  |   -   |  -
 | disabled |  该表单项是否禁用  |   true、false   |  boolean  |   -   |  -
 
