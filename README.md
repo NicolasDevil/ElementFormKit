@@ -16,4 +16,9 @@
 | 参数         |  说明  |  可选值  |   类型   |  默认值  |  实例
 | -------- | :-----  |  :----: |  :----:   |  :----: | :----: |
 | label |  该表单项名称  |   -   |  String  |   -   |  -
-| type |  该表单项名称  |   -   |  String  |   -   |  -
+| type |  该表单项类型  |   -   |  String  |   -   |  -
+| placeholder |  该表单项placeholder  |   -   |  String  |   -   |  -
+| disabled |  该表单项是否禁用  |   true、false   |  boolean  |   -   |  -
+
+
+
