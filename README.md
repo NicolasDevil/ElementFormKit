@@ -5,7 +5,7 @@
 ### components Attributes
 | 参数         | 说明    |    类型   |  默认值  | 
 | -------- | :-----  |  :----:  |  :----: |
-| config |  表单配置项，详细config配置参数参考下方config配置表  |  Array  |   []
+| config |  表单配置项，详细config配置参数参考下方config配置表  |  Array  |   空数组
 | labelPosition |  表单项对齐规则,和elementUI的label-position一样  |  String  |   top  
 | labelWidth |  表单项标题宽度（此参数仅在labelPosition为left、right时生效，为top时会自动忽略）  |  Number  |   125 
 | columns |  每行显示多少列表单项  |  Number  |   5  
