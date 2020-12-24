@@ -35,12 +35,12 @@
 | labelKey |  自定义额外后台，当type为checkbox和region时通常传输的值为checkbox的id和region的地区码，特殊业务在需要id和地区码的同时还需要他们选中的文字信息，此时则需要labelKey指定后台对应的接受字段（checkbox为-拼接字符串、region为/拼接字符串）  |   -   |  String  |  -
 
 ### pickerOptions Attributes
-| 参数         |  说明  |  可选值  |   类型   |  实例
-| -------- | :-----:  |  :----: |  :----:  | :----: |
-| shortcuts |  设置快捷选项，需要传入 { text, onClick } 对象（text：标题文本；onClick：选中后的回调函数，参数是 vm，可通过触发 'pick' 事件设置选择器的值。例如：`vm.$emit('pick', new Date())`）  |   -   |  Object  |  -
-| disabledDate |  设置禁用状态，参数为当前日期，要求返回 Boolean  |   -   |  Function  |  -
-| cellClassName |  设置日期的 className  |   -   |  Function(Date)  |  -
-| firstDayOfWeek |  周起始日(默认7)  |   1 到 7   |  Number  |  -
-| onPick |  选中日期后会执行的回调，只有当 daterange 或 datetimerange 才生效  |   -   |  Function({ maxDate, minDate })  |  -
+| 参数         |  说明  |  可选值  |   类型 
+| -------- | :-----:  |  :----: |  :----:  |
+| shortcuts |  设置快捷选项，需要传入 { text, onClick } 对象（text：标题文本；onClick：选中后的回调函数，参数是 vm，可通过触发 'pick' 事件设置选择器的值。例如：`vm.$emit('pick', new Date())`）  |   -   |  Object
+| disabledDate |  设置禁用状态，参数为当前日期，要求返回 Boolean  |   -   |  Function 
+| cellClassName |  设置日期的 className  |   -   |  Function(Date)
+| firstDayOfWeek |  周起始日(默认7)  |   1 到 7   |  Number
+| onPick |  选中日期后会执行的回调，只有当 daterange 或 datetimerange 才生效  |   -   |  Function({ maxDate, minDate })
 
 
