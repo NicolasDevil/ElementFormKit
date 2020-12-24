@@ -36,7 +36,7 @@
 
 ### pickerOptions Attributes
 | 参数         |  说明  |  可选值  |   类型 
-| -------- | :-----:  |  :----: |  :----:  |
+| -------- | :-----:  |  :------: |  :----:  |
 | shortcuts |  设置快捷选项，需要传入 { text, onClick } 对象（text：标题文本；onClick：选中后的回调函数，参数是 vm，可通过触发 'pick' 事件设置选择器的值。例如：`vm.$emit('pick', new Date())`）  |   -   |  Object
 | disabledDate |  设置禁用状态，参数为当前日期，要求返回 Boolean  |   -   |  Function 
 | cellClassName |  设置日期的 className  |   -   |  Function(Date)
