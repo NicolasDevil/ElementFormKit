@@ -16,7 +16,7 @@
 | 参数         |  说明  |  可选值  |   类型   |  实例
 | -------- | :-----:  |  :----: |  :----:  | :----: |
 | label |  该表单项名称  |   -   |  String  |  -
-| type |  该表单项类型  |   text（文本）、input、select、textarea、checkbox、date（日期选择器）、daterange（日期区间选择器）、region(地区选择器)   |  String  | -
+| type |  该表单项类型  |   text（文本）、input、select、textarea、checkbox、date（日期选择器）、daterange（日期区间选择器）、region(地区选择器)、inputNumber(步进器)   |  String  | -
 | placeholder |  该表单项placeholder  |   -   |  String  |   -
 | disabled |  该表单项是否禁用  |   true、false   |  boolean  |  -
 | keys |  表单项key值(该项应该和后台返回该表单项的字段对应，方便将修改后的数据与后台直接交互)  |   -   |  String  |  -
@@ -29,7 +29,17 @@
 | props |  该表单项进行远程数据加载的自定义请求时指定选项的值为选项对象的某个属性值  |   label/value   |  Object  |  `{props: { label: 'name', value: 'id' }}`
 | remoteKey |  该表单项需要进行远程数据加载自定义请求时需要的参数，该remoteKey需要应该在组件v-model绑定数据集存在  |   -   |  String  | `{remoteKey: "custId"}`
 | link |  该表单项显示需要关联的字段  |   -   |  Object  |  `{link: { key: "showid", value: 0 }}`表示表单内字段`showid`的值为0时该项不显示
+| suffix |  该表单项的后缀文字（此字段目前只会在type为text和input时生效）  |   -   |  String  |  -
+| pickerOptions |  当前时间日期选择器特有的选项，详细参考**pickerOptions Attributes**  |   -   |  Object  |  -
+| max |  步进器特有字段用于控制步进器的最大值（当max为string时则会匹配表单内字段，为Number时最大值则为该Number）  |   -   |  String/Number  |  -
+| labelKey |  自定义额外后台，当type为checkbox和region时通常传输的值为checkbox的id和region的地区码，特殊业务在需要id和地区码的同时还需要他们选中的文字信息，此时则需要labelKey指定后台对应的接受字段（checkbox为-拼接字符串、region为/拼接字符串）  |   -   |  String  |  -
 
-
+### pickerOptions Attributes
+| 参数         |  说明  |  可选值  |   类型   |  实例
+| shortcuts |  设置快捷选项，需要传入 { text, onClick } 对象（text：标题文本；onClick：选中后的回调函数，参数是 vm，可通过触发 'pick' 事件设置选择器的值。例如：`vm.$emit('pick', new Date())`）  |   -   |  Object  |  -
+| disabledDate |  设置禁用状态，参数为当前日期，要求返回 Boolean  |   -   |  Function  |  -
+| cellClassName |  设置日期的 className  |   -   |  Function(Date)  |  -
+| firstDayOfWeek |  周起始日(默认7)  |   1 到 7   |  Number  |  -
+| onPick |  选中日期后会执行的回调，只有当 daterange 或 datetimerange 才生效  |   -   |  Function({ maxDate, minDate })  |  -
 
 
