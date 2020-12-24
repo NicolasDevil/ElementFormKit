@@ -3,7 +3,7 @@
     <div class="container">
       <el-tabs v-model="viewActive" class="margin-bottom">
         <!------------------- 调查信息模块 ------------------->
-        <el-tab-pane name="first" class="view-container" :disabled="isLoad.save">
+        <el-tab-pane name="first" class="view-container">
           <div slot="label" class="tabsHeader">调查信息</div>
           <div>
             <el-alert
@@ -15,7 +15,7 @@
             </el-alert>
             <el-alert
               title="用户不存在"
-              description="请去柜面开会，未开户期间您将无法操作此合同信息"
+              description="请去柜面开户，未开户期间您将无法操作此合同信息"
               v-else
               type="error"
               show-icon
@@ -77,7 +77,7 @@
                   <el-table-column prop="operid" label="经办人" align="center"></el-table-column>
                 </el-table>
               </el-tab-pane>
-              <el-tab-pane label="对外担保情况" :disabled="TableData.Credits.dwdbqk && TableData.Credits.dwdbqk.length == 0">
+              <el-tab-pane label="对外担保情况">
                 <el-table :data="TableData.Credits.dwdbqk || []" :border="false" v-loading="isLoad.Credits">
                   <el-table-column prop="assucontno" label="担保合同编号" align="center" width="110"></el-table-column>
                   <el-table-column prop="assucustid" label="担保人客户号" align="center" width="110"></el-table-column>
@@ -97,7 +97,7 @@
                   <el-table-column prop="operid" label="经办人" align="center" width="110"></el-table-column>
                 </el-table>
               </el-tab-pane>
-              <el-tab-pane label="未解除借款合同" :disabled="TableData.Credits.wjcjkht && TableData.Credits.wjcjkht.length == 0">
+              <el-tab-pane label="未解除借款合同">
                 <el-table :data="TableData.Credits.wjcjkht || []" :border="false" v-loading="isLoad.Credits">
                   <el-table-column prop="contno" label="合同编号" align="center"></el-table-column>
                   <el-table-column prop="custid" label="客户编号" align="center"></el-table-column>
@@ -117,37 +117,7 @@
               </el-tab-pane>
             </el-tabs>
             <card-form :config="formSetting.creditrecord" v-model="rxdData.Contract.xdContracts" :columns="5" label-position="right" class="margin-bottom" v-if="rxdData.Contract.xdContracts"></card-form>
-            <card-form :config="formSetting.eloanCard" v-model="rxdData.Contract.xdContracts" title="合同基本信息" :columns="4" ref="eloanCard" v-if="rxdData.Contract.xdContracts">
-              <!-- <template slot="item">
-                <el-form-item label="银行卡卡号" :rules="[{ required: true, message: '银行卡卡号不能为空', trigger: 'blur', validate: LoanCardvalidate }]">
-                  <el-divider content-position="left" v-if="isLoad.easyCard">
-                    <span style="color: #ccc"><i class="el-icon-loading"></i> &nbsp;正在加载银行卡</span>
-                  </el-divider>
-                  <div v-else>
-                    <el-select
-                      v-model="rxdData.Contract.xdContracts.easyLoanCard"
-                      style="width: 210px"
-                      filterable
-                      clearable
-                      placeholder="请选择银行卡卡号"
-                      v-if="cardData.length !== 0">
-                      <el-option
-                        v-for="item in cardData"
-                        :key="item.id"
-                        :label="item.name"
-                        :value="item.id">
-                      </el-option>
-                    </el-select>
-                    <el-input
-                      v-else
-                      type="text"
-                      v-model="rxdData.Contract.xdContracts.easyLoanCard"
-                      style="width: 210px"
-                      placeholder="请输入银行卡卡号"/>
-                  </div>
-                </el-form-item>
-              </template> -->
-            </card-form>
+            <card-form :config="formSetting.eloanCard" v-model="rxdData.Contract.xdContracts" title="合同基本信息" :columns="4" ref="eloanCard" v-if="rxdData.Contract.xdContracts"></card-form>
             <card-form :config="formSetting.rateInfo" v-model="rxdData.Contract.rate" title="利率信息" :columns="4" ref="rateInfo" v-if="rxdData.Contract.rate"></card-form>
             <card-form :config="formSetting.guaranteeinfo" v-model="rxdData.Contract.assucontract" :columns="4" title="担保信息" label-position="right" class="margin-bottom" v-if="rxdData.Contract.assucontract" ref="guaranteeinfo"></card-form>
           </el-card>
@@ -168,11 +138,17 @@
             <card-form v-model="isLoad.defaults">
               <template slot="content">
                 <el-table :data="rxdData.Contract.approvalLists" border>
-                  <el-table-column prop="contId" align="center" label="合同号"></el-table-column>
-                  <el-table-column prop="userName" align="center" label="客户经理"></el-table-column>
-                  <el-table-column prop="userOrgan" align="center" label="客户经理所属机构"></el-table-column>
+                  <el-table-column prop="userPos" align="center" label="处理人岗位"></el-table-column>
+                  <el-table-column prop="userName" align="center" label="处理人"></el-table-column>
+                  <el-table-column prop="userXdno" align="center" label="信贷号"></el-table-column>
+                  <el-table-column prop="userOrgan" align="center" label="所属机构"></el-table-column>
+                  <el-table-column prop="result" align="center" label="审批意见">
+                    <template slot-scope="{row}">
+                      <span>{{showDict('dd-approval-result', row.result) || '暂无数据'}}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="remark" align="center" label="审批意见说明"></el-table-column>
                   <el-table-column prop="approvalTime" align="center" label="审批时间"></el-table-column>
-                  <el-table-column prop="remark" align="center" label="审批意见"></el-table-column>
                 </el-table>
               </template>
             </card-form>
@@ -181,7 +157,7 @@
         <!------------------- 调查信息模块 ------------------->
         
         <!------------------- 拟制合同模块 ------------------->
-        <el-tab-pane name="second" class="view-container" :disabled="isLoad.save">
+        <el-tab-pane name="second" class="view-container">
           <div slot="label" class="tabsHeader">拟制合同</div>
           <el-card class="box-card" shadow="never" v-if="rxdData.Contract && rxdData.Contract.xdContracts">
             <h4 slot="header">合同基本信息</h4>
@@ -222,12 +198,12 @@
       </div>
 
       <div class="fixed-buttom" v-if="isuser && pageState">
-        <el-button type="primary" size="small" v-if="viewActive === 'first'" :loading="isLoad.save" @click="save" :disabled="pageState === 'EFF' || pageState === 'END'">
+        <el-button type="primary" size="small" v-if="viewActive === 'first'" @click="save" :disabled="pageState === 'EFF' || pageState === 'END'">
           <span v-if="pageState === 'ADD'">立即保存</span>
           <span v-if="pageState === 'EFF'">合同已提交</span>
           <span v-if="pageState === 'END'">合同已提交</span>
         </el-button>
-        <el-button type="primary" size="small" v-if="viewActive === 'second'" :loading="isLoad.save" @click="orderin" :disabled="pageState === 'EFF' || pageState === 'END'">
+        <el-button type="primary" size="small" v-if="viewActive === 'second'" @click="orderin" :disabled="pageState === 'EFF' || pageState === 'END'">
           <span v-if="pageState === 'ADD'">签订合同</span>
           <span v-if="pageState === 'EFF'">合同已签订</span>
           <span v-if="pageState === 'END'">合同已签订</span>
@@ -286,14 +262,15 @@
 <script>
 import cardForm from "@/components/cardForm"
 import config from "./config.js"
-import { queryCustInfo, queryContractInfo, updateCustInfo, contractCust, updateContractInfo, getDictsList, getCreditHistory, submitContract, selectCardNo, getCompanyInfo } from "@/api/loanContract/contract";
+import { queryCustInfo, queryContractInfo, updateCustInfo, contractCust, updateContractInfo, getDictsList, getCreditHistory, submitContract, getCompanyInfo } from "@/api/loanContract/contract";
 export default {
   name: "bargainDetail",
+  inject: ["reload"],
   data () {
     return {
-      isLoad: { page: false, save: false, defaults: {}, houseinfo: true, easyCard: false, Credits: false, DealPriv: false },
+      isLoad: { page: false, defaults: {}, houseinfo: true, easyCard: false, Credits: false, DealPriv: false },
       isuser: true,
-      viewActive: 'first',
+      viewActive: this.$store.state.system.tabsActive,
       TableData: {
         Creditsload: false,
         Credits: {}
@@ -312,7 +289,7 @@ export default {
   async created() {
     try {
       this.GetList();
-      const addressSel = await getDictsList(["contract_addrtype", "contract_natisign2"]);
+      const addressSel = await getDictsList(["contract_addrtype", "contract_natisign2", "dd-approval-result"]);
       const _user = await contractCust(this.views.custId);   // 查询用户是否存在客户信息
       const Credits = await getCreditHistory(this.views.custId);  // 获取借款人信贷记录
       if(addressSel && addressSel.code === 200) this.addressSelect = addressSel.data;
@@ -330,8 +307,15 @@ export default {
         console.log(rxd)
         const Cust = rxd[0].data || {}, Contract = rxd[1].data || {};
         this.rxdData = { Cust, Contract }
-        if(Cust && Cust.xdCustBase) this.GeteasyCard(Cust.xdCustBase.paperid);
         if(Contract && Contract.xdContracts) this.rxdData.Contract = { ...Contract, xdContracts: { ...Contract.xdContracts, loanrate: Contract.rate.loanrate } };
+        if(Cust && Cust.xdCustBase) {
+          if(Cust.xdCustBase.customerkind == "06") {
+            this.formSetting.custombase[18].disabled = true
+          } else {
+            this.formSetting.custombase[18].disabled = false
+          }
+        }
+        if(this.$refs.houseinfo) this.$refs.houseinfo._initcomponent();
         this.isLoad.page = false
       }).catch(err => {
         console.log(err)
@@ -347,20 +331,26 @@ export default {
       })
     },
     async saveRequest(CustInfo, ContractInfo) {
+      const loading = this.$loading({
+        lock: true,
+        text: "正在保存",
+        spinner: "el-icon-loading"
+      })
       try {
-        this.isLoad.save = true
         await updateCustInfo({
           ...CustInfo,
           xdCustBase: { ...CustInfo.xdCustBase, operid: ContractInfo.xdContracts.operid, bankid: ContractInfo.xdContracts.bankid }
         })
         await updateContractInfo(ContractInfo)
-        this.$message.success("保存成功！")
-        this.GetList()
-        this.viewActive = "second"
-        this.isLoad.save = false
+        this.$alert('客户信息维护成功，可以签署合同', '信息维护成功', {
+          confirmButtonText: '确定'
+        })
+        this.reload()
+        this.$store.dispatch("system/changetabsActive", "second")
+        loading.close()
       } catch (error) {
         console.log(error)
-        this.isLoad.save = false
+        loading.close()
         // this.GetList()
       }
     },
@@ -386,21 +376,23 @@ export default {
     orderin() {   // 立刻签订
       const _refs = ['personalLoaninfo', 'otherinfo', 'houseinfo2', 'mortgageinfo2'], Contracts = this.rxdData.Contract.xdContracts || {};
       this.componentsValidate(_refs).then(async () => {
+        const loading = this.$loading({
+          lock: true,
+          text: "正在签订合同",
+          spinner: "el-icon-loading"
+        })
         try {
-          this.isLoad.save = true
           await updateContractInfo(this.rxdData.Contract)
           await submitContract({ contid: Contracts.contId, custid: Contracts.custId, custno: Contracts.custno, assukind: Contracts.assukind })
-          this.$message.success("签订成功！")
-          await this.GetList()
-          this.isLoad.save = false
+          this.$alert('合同签订成功！', '签订成功', {
+            confirmButtonText: '确定'
+          })
+          loading.close()
+          this.reload()
         } catch (error) {
-          this.isLoad.save = false
+          loading.close()
         }
       })
-    },
-
-    LoanCardvalidate(data) {
-      console.log(date)
     },
 
     // 地址信息模块数据交互逻辑区块
@@ -438,43 +430,8 @@ export default {
       this.addressDialog.form.addrtypeName = dictLabel
     },
     // 地址信息模块数据交互逻辑区块
-
-    // 表单回调事件区块
-    // LoaninfoChange(val) {
-    //   const flag = val.value, config = { 
-    //     label: "涉农贷款用途:",
-    //     type: 'select',
-    //     placeholder: "请选择涉农贷款用途",
-    //     rules: [{ required: true, message: '涉农贷款用途不能为空', trigger: 'blur' }],
-    //     disabled: false,
-    //     inline: true,
-    //     isshow: true,
-    //     keys: "isagridesc",
-    //     keydata: "contract_isagridesc"
-    //   }
-    //   if(val.keys === "isagriflag" && flag == 1) {
-    //     this.formSetting.personalLoaninfo.push(config)
-    //     this.$refs.personalLoaninfo._initcomponent()
-    //   } else if(val.keys === "isagriflag" && flag == 0) {
-    //     this.formSetting.personalLoaninfo.pop()
-    //   }
-    // },
-    // 表单回调事件区块
     
     // 页面信息拉取区块
-    GeteasyCard(idNo) {   // 获取易贷卡卡号数据
-      this.isLoad.easyCard = true
-      selectCardNo(idNo || null).then(res => {
-        if(res.code === 200 && res.data) {
-          const rxd = res.data.map(item => ({
-            name: `${item.b151}（余额：${item.b152}）`,
-            id: item.b151
-          }))
-          this.cardData = rxd
-          this.isLoad.easyCard = false
-        }
-      })
-    },
     GetcompanyInfo(creditCode) {   // 获取企业信息
       this.isLoad.DealPriv = true
       getCompanyInfo(creditCode || '').then(res => {
@@ -493,6 +450,10 @@ export default {
         this.isLoad.DealPriv = false
       })
     },
+    showDict(dict, value) {   // 根据字典值获取、显示字典数据
+      const _dict = this.addressSelect[dict] || [];
+      return _dict.find(ele => ele.dictValue == value) ? _dict.find(ele => ele.dictValue == value).dictLabel : "暂无数据"
+    }
     // 页面信息拉取区块
   },
   computed: {
@@ -540,6 +501,10 @@ export default {
         if(_old && _new !== _old) this.GetcompanyInfo(_new);
       }
     }
+  },
+  beforeRouteLeave(to, from, next) {
+    this.$store.dispatch("system/changetabsActive", "first")
+    next()
   },
   components: { cardForm }
 }
