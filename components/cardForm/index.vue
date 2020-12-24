@@ -19,8 +19,8 @@
             :prop="configs.keys"
             :rules="configs.rules">
             <div v-if="configs.type === 'text'">
-              <span v-if="configs.keydata">{{showDict(configs.keydata, FormData[configs.keys])}}</span>
-              <span v-else>{{FormData[configs.keys] || "暂无数据"}}</span>
+              <span v-if="configs.keydata">{{`${showDict(configs.keydata, FormData[configs.keys])}${configs.suffix || ''}`}}</span>
+              <span v-else>{{`${FormData[configs.keys] || "暂无数据"}${configs.suffix || ''}`}}</span>
             </div>
             <div v-if="configs.type === 'textarea' && true">
               <el-input
@@ -34,10 +34,31 @@
             <div v-if="configs.type === 'input'">
               <el-input
                 type="text"
+                v-if="configs.valueable"
+                class="public-style"
+                v-model="FormData[configs.keys]"
+                :disabled="FormData[configs.keys] ? true : false"
+                :placeholder="configs.placeholder">
+                <template slot="append" v-if="configs.suffix">{{configs.suffix}}</template>
+              </el-input>
+              <el-input
+                type="text"
+                v-else
                 class="public-style"
                 v-model="FormData[configs.keys]"
                 :disabled="configs.disabled || false"
-                :placeholder="configs.placeholder"/>
+                :placeholder="configs.placeholder">
+                <template slot="append" v-if="configs.suffix">{{configs.suffix}}</template>
+              </el-input>
+            </div>
+            <div v-if="configs.type === 'inputNumber'">
+              <el-input-number
+                v-model="FormData[configs.keys]"
+                :step="configs.step || 5"
+                :min="configs.min ? typeof configs.min === 'string' ? Number(FormData[configs.min]) : configs.min : -1"
+                :max="configs.max ? typeof configs.max === 'string' ? Number(FormData[configs.max]) : configs.max : 0"
+                :disabled="configs.disabled || false">
+              </el-input-number>
             </div>
             <div v-if="configs.type === 'select'">
               <el-select
@@ -48,7 +69,27 @@
                 :placeholder="configs.placeholder"
                 class="public-style">
                 <el-option
-                  v-for="item in configs.hasOwnProperty('$remote') && Array.isArray(configs.$remote) ? configs.$remote : selectData[configs.keydata] || []"
+                  v-for="item in selectData[configs.keydata] || []"
+                  :key="item.dictValue"
+                  :label="item.dictLabel"
+                  :value="item.dictValue">
+                </el-option>
+              </el-select>
+            </div>
+            <div v-if="configs.type === 'remote'">
+              <el-divider content-position="left" v-if="loadedMap[configs.keys]">
+                <span class="no-text"><i class="el-icon-loading"></i> &nbsp;正在加载数据</span>
+              </el-divider>
+              <el-select
+                v-model="FormData[configs.keys]"
+                filterable
+                v-else
+                @change="FormChange($event, configs)"
+                :disabled="configs.disabled || false"
+                :placeholder="configs.placeholder"
+                class="public-style">
+                <el-option
+                  v-for="item in selectData[configs.keys] || []"
                   :key="item.dictValue"
                   :label="item.dictLabel"
                   :value="item.dictValue">
@@ -60,6 +101,7 @@
                 type="date"
                 :disabled="configs.disabled || false"
                 v-model="FormData[configs.keys]"
+                :picker-options="configs.pickerOptions"
                 format="yyyy-MM-dd"
                 class="public-style"
                 :placeholder="configs.placeholder"
@@ -82,8 +124,8 @@
               </el-date-picker>
               <span class="text-warn" v-else>需要配置startkeys和endkeys</span>
             </div>
-            <div v-if="configs.type === 'checkbox' && FormData[configs.keys]">
-              <el-checkbox-group v-model="FormData[configs.keys]" :disabled="configs.disabled || false">
+            <div v-if="configs.type === 'checkbox'">
+              <el-checkbox-group v-model="FormData[configs.keys]" :disabled="configs.disabled || false" :ref="configs.keys" @change="checkboxChange($event, configs)">
                 <el-checkbox v-for="(items, index) in configs.keydata || []" :key="index" :label="items.id">{{items.label}}</el-checkbox>
               </el-checkbox-group>
             </div>
@@ -133,48 +175,6 @@
 </template>
 
 <script>
-/**
- * card-form 参数使用说明
- * @param {config} 【必填】表单配置项，该项应为数组类型
- * @param {config.label} 表单项名称
- * @param {config.type} 表单项类型【text（文本）、input、select、textarea、checkbox、date（日期选择器）、daterange（日期区间选择器）、region(地区选择器)】
- * @param {config.placeholder} 原生input placeholder
- * @param {config.disabled} 是否禁用
- * @param {config.keys} 表单项key值，该项应该和后台返回该表单项的字段对应，方便将修改后的数据与后台直接交互
- * @param {config.startkeys || config.endkeys} 日期区间选择器项key值，考虑到区间选择是个数组所以需要指定2个字段接收；仅在type=daterange时生效
- * @param {config.keydata} 此属性仅在type为select和checkbox时生效，它将作为该select项拉取数据（getDictsList接口）时需要传输的参数
- * @param {config.rules} 表单项校验规则，不填则无
- * @param {config.inline} 该表单项是否在新的一行整行显示（true、false）
- * @param {labelPosition} 表单项对齐规则（left、right、top）
- * @param {labelWidth} 表单项标题宽度，数字类型，不填默认为125px，此参数仅在labelPosition为left、right时生效，为top时会自动忽略
- * @param {columns} 每行显示多少列表单项，默认5列
- * @param {title} 表单项头标题
- * @param {size} 表单内子项目元素尺寸
- * 完整实例： 
- * <card-form
- *    :config="[{ label: "客户号:", type: 'input', placeholder: "请输入客户号", disabled: false, keys: "aa", rules: [{ required:true, message:'行内客户号不能为空'}] }]" 
- *    v-model="base"
- *    :columns="4"
- *    size="mini"
- *    title="担保信息">
- * </card-form>
- * 
- * -------- 关于组件插槽的使用 --------
- *  只设置了2个插槽，slot="content"和slot="item"，在设置插槽时v-model你任然需要加上，你也可以不写，其实影响不大，但页面会报红
- *  item插槽： 此插槽会将你的内容和表单项并级
- *  content插槽： 此插槽会将你的内容和整个表单并级
- *  实例（content插槽）：
- *  <card-form v-model="base" title="标题">
- *     <template slot="content">
- *        <div>你的内容</div>
- *     </template>
- *  </card-form>
- * -------- 关于组件插槽的使用 --------
- * 
- * 注意：当config项中存在checkbox配置项，你需要在组件v-model绑定的变量中初始化为一个键为checkbox的keys，值为空数组，因为checkbox只能接受数组类型
- * 备注1：使用时加上refs="cardForm"参数（注意在重复使用组件时refs的值不能重复），组件内的所有方法在组件外都可使用例如：this.$refs.cardForm[组件内方法名]
- * 备注2：组件加载时已对config参数进行遍历操作，如需要对参数进行特殊处理应在_initcomponent类内新增构造函数，在init方法内执行以避免不必要的重复遍历
- */
 import { getDictsList, getProvincesCity } from "@/api/loanContract/contract";
 export default {
   name: "cardForm",
@@ -257,15 +257,18 @@ export default {
           if(config.hasOwnProperty('type') && config.type === 'region') this.keys.region.push(config.keys);
         }
         remote(config) {   // 远程搜索方法开始检索远程数据
-          if(config.hasOwnProperty('$remote') && typeof config.$remote === 'function') {
+          if(config.hasOwnProperty('type' && '$remote') && config.type === 'remote' && typeof config.$remote === 'function') {
+            THIS.loadedMap[config.keys] = true
             config.$remote(THIS.FormData[config.remoteKey] || null).then(res => {
+              THIS.loadedMap[config.keys] = false
               if(res.code === 200) {
                 if(config.hasOwnProperty('props') && typeof config.props === 'object') {
-                  config.$remote = THIS.dataHandel(res.data, config.props.label, config.props.value)
+                  THIS.selectData[config.keys] = THIS.dataHandel(res.data, config.props.label, config.props.value)
                 } else {
-                  config.$remote = res.data
+                  THIS.selectData[config.keys] = res.data
                 }
               };
+              THIS.$forceUpdate()
             })
           }
         }
@@ -285,7 +288,11 @@ export default {
         handelcheckbox(config) {  // 处理checkbox数据
           if(config.hasOwnProperty('type') && config.type === "checkbox") {
             const _value = THIS.FormData[config.keys]
-            THIS.FormData[config.keys] = _value.map(Number)
+            if(_value && Array.isArray(_value) && _value.length !== 0) {
+              THIS.FormData[config.keys] = _value.map(Number)
+            } else {
+              THIS.FormData[config.keys] = []
+            }
           };
         }
       }
@@ -293,8 +300,8 @@ export default {
  
     regionChange(values, config) {    // 监控地区选择器数据(labelkey作为获取地区文字的key值，特殊业务时作为绑定地区文字的字段)
       const labelKey = config.labelkey || null;
+      this.fixedPinterclearValidate(config);
       if(labelKey && labelKey !== "" && this.$refs[config.keys][0]) {
-        this.fixedPinterclearValidate(config);
         const _labels = this.$refs[config.keys][0].getCheckedNodes()[0].pathLabels;
         this.FormData[labelKey] = _labels.length !== 0 ? _labels.join("/") : '';
       }
@@ -313,6 +320,17 @@ export default {
       }
     },
 
+    checkboxChange(value, config) {   // 监控checkbox数据
+      if(config.hasOwnProperty('labelKey') && config.labelKey) {
+        const checkboxs = config.keydata || [];
+        if(value && Array.isArray(value) && value.length !== 0) {
+          let labelString = new Array
+          value.forEach(element => checkboxs.find(is => is.id == element) ? labelString.push(checkboxs.find(is => is.id == element).label) : null);
+          this.FormData[config.labelKey] = labelString.join("-")
+        }
+      }
+    },
+
     FormChange(value, config) {   // 监控表单数据更改
       this.fixedPinterclearValidate(config)
       if(value !== undefined && value.trim() !== "") this.$emit("change", { value, ...config });
@@ -320,7 +338,6 @@ export default {
     fixedPinterclearValidate(config = {}) {    // 定点清除表单项校验
       if(config.hasOwnProperty('keys' && 'rules') && this.$refs.cardsform) this.$refs.cardsform.clearValidate([config.keys]);
     },
-
     confController(config) {   // 校验配置项中是否包含link关联
       if(config.hasOwnProperty("link")) {
         const { value, key } = config.link
@@ -339,6 +356,15 @@ export default {
         return handel
       } else {
         return []
+      }
+    },
+
+    clcselectOptions(config) {   // 按需计算select的option
+      if(config.hasOwnProperty('$remote')) {
+        // console.log(this.selectData[config.keys])
+        return this.selectData[config.keys] || []
+      } else {
+        return this.selectData[config.keydata] || []
       }
     },
 
