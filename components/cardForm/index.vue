@@ -9,12 +9,12 @@
         :inline="true"
         :label-position="labelPosition"
         :size="size">
-        <div class="form-item" :style="`grid-template-columns: repeat(${columns}, 1fr)`">
+        <div class="form-item" :style="`grid-template-columns: repeat(${calcedcolumns}, 1fr)`">
           <el-form-item
             :label="configs.label"
             v-for="(configs, index) in config.filter(ele => confController(ele))"
-            :class="{ 'gutters-line': configs.inline }"
-            :key="index"
+            :class="{ 'gutters-line': configs.inline, 'label-row': labelPosition !== 'top' }"
+            :key="configs.keys + index"
             :label-width="labelWidth + 'px'"
             :prop="configs.keys"
             :rules="configs.rules">
@@ -22,11 +22,11 @@
               <span v-if="configs.keydata">{{`${showDict(configs.keydata, FormData[configs.keys])}${configs.suffix || ''}`}}</span>
               <span v-else>{{`${FormData[configs.keys] || "暂无数据"}${configs.suffix || ''}`}}</span>
             </div>
-            <div v-if="configs.type === 'textarea' && true">
+            <div v-if="configs.type === 'textarea'">
               <el-input
                 type="textarea"
                 v-model="FormData[configs.keys]"
-                :disabled="configs.disabled || false"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 class="card-textarea"
                 :autosize="{ minRows: 2, maxRows: 4}"
                 :placeholder="configs.placeholder"/>
@@ -34,19 +34,9 @@
             <div v-if="configs.type === 'input'">
               <el-input
                 type="text"
-                v-if="configs.valueable"
                 class="public-style"
                 v-model="FormData[configs.keys]"
-                :disabled="FormData[configs.keys] ? true : false"
-                :placeholder="configs.placeholder">
-                <template slot="append" v-if="configs.suffix">{{configs.suffix}}</template>
-              </el-input>
-              <el-input
-                type="text"
-                v-else
-                class="public-style"
-                v-model="FormData[configs.keys]"
-                :disabled="configs.disabled || false"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 :placeholder="configs.placeholder">
                 <template slot="append" v-if="configs.suffix">{{configs.suffix}}</template>
               </el-input>
@@ -57,15 +47,15 @@
                 :step="configs.step || 5"
                 :min="configs.min ? typeof configs.min === 'string' ? Number(FormData[configs.min]) : configs.min : -1"
                 :max="configs.max ? typeof configs.max === 'string' ? Number(FormData[configs.max]) : configs.max : 0"
-                :disabled="configs.disabled || false">
+                :disabled="disabled ? disabled : configs.disabled || false">
               </el-input-number>
             </div>
             <div v-if="configs.type === 'select'">
               <el-select
                 v-model="FormData[configs.keys]"
                 filterable
-                @change="FormChange($event, configs)"
-                :disabled="configs.disabled || false"
+                @change="selectChange($event, configs)"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 :placeholder="configs.placeholder"
                 class="public-style">
                 <el-option
@@ -84,8 +74,8 @@
                 v-model="FormData[configs.keys]"
                 filterable
                 v-else
-                @change="FormChange($event, configs)"
-                :disabled="configs.disabled || false"
+                @change="selectChange($event, configs)"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 :placeholder="configs.placeholder"
                 class="public-style">
                 <el-option
@@ -99,7 +89,7 @@
             <div v-if="configs.type === 'date'">
               <el-date-picker
                 type="date"
-                :disabled="configs.disabled || false"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 v-model="FormData[configs.keys]"
                 :picker-options="configs.pickerOptions"
                 format="yyyy-MM-dd"
@@ -114,7 +104,7 @@
                 type="daterange"
                 v-model="DataRange[configs.startkey]"
                 format="yyyy-MM-dd"
-                :disabled="configs.disabled || false"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 value-format="yyyy-MM-dd"
                 start-placeholder="开始时间"
                 end-placeholder="结束时间"
@@ -125,7 +115,7 @@
               <span class="text-warn" v-else>需要配置startkeys和endkeys</span>
             </div>
             <div v-if="configs.type === 'checkbox'">
-              <el-checkbox-group v-model="FormData[configs.keys]" :disabled="configs.disabled || false" :ref="configs.keys" @change="checkboxChange($event, configs)">
+              <el-checkbox-group v-model="FormData[configs.keys]" :disabled="disabled ? disabled : configs.disabled || false" :ref="configs.keys" @change="checkboxChange($event, configs)">
                 <el-checkbox v-for="(items, index) in configs.keydata || []" :key="index" :label="items.id">{{items.label}}</el-checkbox>
               </el-checkbox-group>
             </div>
@@ -135,7 +125,7 @@
                 :ref="configs.keys"
                 filterable
                 v-model="FormData[configs.keys]"
-                :disabled="configs.disabled || false"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 :props="{ value: 'id', label: 'label', children: 'children' }"
                 class="public-style"
                 :show-all-levels="true"
@@ -154,7 +144,7 @@
                 filterable
                 v-model="FormData[configs.keys]"
                 @change="fixedPinterclearValidate(configs)"
-                :disabled="configs.disabled || false"
+                :disabled="disabled ? disabled : configs.disabled || false"
                 :props="{ value: 'id', label: 'label', children: 'children' }"
                 class="public-style"
                 :show-all-levels="true"
@@ -162,8 +152,46 @@
               </el-cascader>
               <el-divider content-position="left" v-else>
                 <span class="no-text"><i class="el-icon-loading"></i> &nbsp;正在加载数项</span>
-                <!-- <span class="no-text" v-else>暂无数据项</span> -->
               </el-divider>
+            </div>
+            <div v-if="configs.type === 'image'">
+              <div class="image-view">
+                <el-image 
+                  :style="{
+                    width: (configs.hasOwnProperty('width') ? `${configs.width}px` : 'auto'),
+                    height: (configs.hasOwnProperty('height') ? `${configs.height}px` : 'auto')
+                  }"
+                  :src="FormData[configs.keys]"
+                  :preview-src-list="Array.isArray(FormData[configs.previewkeys || configs.keys]) ? FormData[configs.previewkeys || configs.keys] : [FormData[configs.previewkeys || configs.keys]]"
+                  :fit="configs.fit || 'contain'">
+                </el-image>
+              </div>
+            </div>
+            <div v-if="configs.type === 'video'">
+              <div class="video-view" v-if="!configs.action">
+                <video
+                  v-if="FormData[configs.keys]"
+                  :src="FormData[configs.keys]"
+                  :style="{
+                    width: (configs.hasOwnProperty('width') ? `${configs.width}px` : '240px'),
+                    height: (configs.hasOwnProperty('height') ? `${configs.height}px` : '120px')
+                  }"
+                  x5-playsinline
+                  autoplay="autoplay"
+                  controls="true"
+                  x-webkit-airplay="allow"
+                  webkit-playsinline="true">
+                </video>
+                <span v-else class="text-warn"><i class="el-icon-warning-outline"></i> 该视频地址，暂无法播放</span>
+              </div>
+              <div v-else>
+                <video-upload
+                  v-model="FormData[configs.keys]"
+                  :name="configs.name"
+                  :limit="configs.limit"
+                  :action="configs.action">
+                </video-upload>
+              </div>
             </div>
           </el-form-item>
           <slot name="item"/>
@@ -176,6 +204,7 @@
 
 <script>
 import { getDictsList, getProvincesCity } from "@/api/loanContract/contract";
+import videoUpload from "./videoUpload";
 export default {
   name: "cardForm",
   props: {
@@ -185,6 +214,10 @@ export default {
       default: function() {
         return []
       }
+    },
+    disabled: {   // 禁用项目，开启后config内的disabled将失效
+      type: Boolean,
+      default: false
     },
     labelPosition: {    // 表单项对齐规则（left、right、top）
       type: String,
@@ -209,7 +242,9 @@ export default {
   },
   data () {
     return {
+      BASE_API: process.env.VUE_APP_SERVICE_URL,
       isload: false,
+      calcedcolumns: this.clcTablecolumns(),
       loadedMap: { region: true },
       treeselectLoaded: false,
       regionData: [],
@@ -230,6 +265,9 @@ export default {
   },
   created() {
     setTimeout(() => { this._initcomponent() }, 1500)
+  },
+  mounted() {
+    window.addEventListener("resize", () => this.calcedcolumns = this.clcTablecolumns())
   },
   methods: {
     _initcomponent() {
@@ -290,6 +328,7 @@ export default {
             const _value = THIS.FormData[config.keys]
             if(_value && Array.isArray(_value) && _value.length !== 0) {
               THIS.FormData[config.keys] = _value.map(Number)
+              THIS.checkboxChange(_value, config)
             } else {
               THIS.FormData[config.keys] = []
             }
@@ -331,9 +370,13 @@ export default {
       }
     },
 
-    FormChange(value, config) {   // 监控表单数据更改
+    selectChange(value, config) {   // 监控表单select数据更改
+      const labelKey = config.labelkey || null, Opts = this.selectData[config.keydata || config.keys] || [];
       this.fixedPinterclearValidate(config)
-      if(value !== undefined && value.trim() !== "") this.$emit("change", { value, ...config });
+      if(Opts.length !== 0) {
+        const _opts = Opts.find(is => is.dictValue === value)
+        this.FormData[labelKey] = _opts.dictLabel
+      }
     },
     fixedPinterclearValidate(config = {}) {    // 定点清除表单项校验
       if(config.hasOwnProperty('keys' && 'rules') && this.$refs.cardsform) this.$refs.cardsform.clearValidate([config.keys]);
@@ -367,6 +410,14 @@ export default {
         return this.selectData[config.keydata] || []
       }
     },
+    clcTablecolumns() {   // 计算每行列数
+      const clientWidth = document.body.clientWidth
+      if(clientWidth !== undefined && clientWidth <= 1400) {
+        return 4
+      } else {
+        return this.columns
+      }
+    },
 
     /********** 组件基础数据信息获取 **********/
     region_get(keys) {
@@ -391,7 +442,8 @@ export default {
       }
     }
     /********** 组件基础数据信息获取 **********/
-  }
+  },
+  components: { videoUpload }
 };
 </script>
 
@@ -419,17 +471,27 @@ h5 {
     grid-column-gap: 15px;
     align-items: center;
     .public-style {
-      width: 210px;
+      width: 100%;
+      max-width: 210px;
+    }
+  }
+  .label-row {
+    display: flex;
+    overflow: hidden;
+    /deep/ .el-form-item__content {
+      flex: 1;
+      overflow: hidden;
+    }
+    span {
+      word-break: break-word;
     }
   }
   .gutters-line {
     grid-column: 1/-1;
   }
-  .full-line {
-    width: 100%;
-  }
   .text-warn {
     font-size: 12px;
+    user-select: none;
     color: #aaa;
   }
   /deep/ .el-card__header {
@@ -442,6 +504,9 @@ h5 {
   }
   .no-text {
     color: #ccc;
+  }
+  /deep/ .el-image-viewer__close {
+    color: #fff;
   }
 }
 </style>
