@@ -16,7 +16,7 @@
 | 参数         |  说明  |  可选值  |   类型   |  实例
 | -------- | :-----:  |  :----: |  :----:  | :----: |
 | label |  该表单项名称  |   -   |  String  |  -
-| type |  该表单项类型  |   text（文本）、input、select、textarea、checkbox、date（日期选择器）、daterange（日期区间选择器）、region(地区选择器)、inputNumber(步进器)   |  String  | -
+| type |  该表单项类型  |   text（文本）、input、select、textarea、checkbox、date（日期选择器）、daterange（日期区间选择器）、region(地区选择器)、inputNumber(步进器)、image(图片显示)、video(视频上传及显示)   |  String  | -
 | placeholder |  该表单项placeholder  |   -   |  String  |   -
 | disabled |  该表单项是否禁用  |   true、false   |  boolean  |  -
 | keys |  表单项key值(该项应该和后台返回该表单项的字段对应，方便将修改后的数据与后台直接交互)  |   -   |  String  |  -
@@ -33,6 +33,16 @@
 | pickerOptions |  当前时间日期选择器特有的选项，详细参考**pickerOptions Attributes**  |   -   |  Object  |  -
 | max |  步进器特有字段用于控制步进器的最大值（当max为string时则会匹配表单内字段，为Number时最大值则为该Number）  |   -   |  String/Number  |  -
 | labelKey |  自定义额外后台，当type为checkbox和region时通常传输的值为checkbox的id和region的地区码，特殊业务在需要id和地区码的同时还需要他们选中的文字信息，此时则需要labelKey指定后台对应的接受字段（checkbox为-拼接字符串、region为/拼接字符串）  |   -   |  String  |  -
+
+### config type(image/video) Attributes
+| 参数         |  说明  |  可选值  |   类型 
+| -------- | :-----:  |  :------: |  :----:  |
+| width |  视频、图片组件宽度（视频组件默认为240px，图片组件为auto）  |   -   |  Number
+| height |  视频、图片组件高度（视频组件默认为120px，图片组件为auto）  |   -   |  Number
+| action |  该参数为图片及视频上传的上传路径，如果没有则为展示图片及视频无上传功能  |   -   |  String
+| name |  上传的文件字段名  |   -   |  String
+| limit |  上传的视频或文件的大小限制（视频默认：200M）  |   -   |  Number
+| previewkeys |  图片特有属性，指定图片预览的文件字段  |   -   |  Array
 
 ### pickerOptions Attributes
 | 参数         |  说明  |  可选值  |   类型 
