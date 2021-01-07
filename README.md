@@ -5,11 +5,11 @@
 ### components Attributes
 | 参数         | 说明    |    类型   |  默认值  | 
 | -------- | :-----  |  :----:  |  :----: |
-| config |  表单配置项，详细config配置参数参考下方config配置表  |  Array  |   空数组
+| config |  表单配置项，详细config配置参数参考下方config配置表  |  Array  |   []
 | labelPosition |  表单项对齐规则,和elementUI的label-position一样  |  String  |   top  
 | labelWidth |  表单项标题宽度（此参数仅在labelPosition为left、right时生效，为top时会自动忽略）  |  Number  |   125 
 | columns |  每行显示多少列表单项  |  Number  |   5  
-| title |  表单项头标题  |  String  |   null
+| title |  表单项头标题  |  String  |   -
 | size |  表单内子项目元素尺寸（可选值为medium / small / mini）  |  String  |   mini 
 
 ### config Attributes
@@ -35,14 +35,19 @@
 | labelKey |  自定义额外后台，当type为checkbox和region时通常传输的值为checkbox的id和region的地区码，特殊业务在需要id和地区码的同时还需要他们选中的文字信息，此时则需要labelKey指定后台对应的接受字段（checkbox为-拼接字符串、region为/拼接字符串）  |   -   |  String  |  -
 
 ### config type(image/video) Attributes
-| 参数         |  说明  |  可选值  |   类型 
+| 参数         |  说明  |  默认值  |   类型 
 | -------- | :-----:  |  :------: |  :----:  |
 | width |  视频、图片组件宽度（视频组件默认为240px，图片组件为auto）  |   -   |  Number
 | height |  视频、图片组件高度（视频组件默认为120px，图片组件为auto）  |   -   |  Number
 | action |  该参数为图片及视频上传的上传路径，如果没有则为展示图片及视频无上传功能  |   -   |  String
 | name |  上传的文件字段名  |   -   |  String
-| limit |  上传的视频或文件的大小限制（视频默认：200M）  |   -   |  Number
-| previewkeys |  图片特有属性，指定图片预览的文件字段  |   -   |  Array
+| limit |  上传的视频或文件的大小限制（视频默认：200M），图片上传时为最大允许上传个数  |   -   |  Number
+| multiple |  是否支持多选  |   false   |  Boolean
+| extraData |  上传时附带的额外参数  |   -   |  Object
+| showFileList |  是否显示已上传文件列表  |   true   |  Boolean
+| accept |  接受上传的文件类型  |   jpeg、png、gif   |  String
+| description |  文件上传描述  |   -   |  String
+| size |  文件大小限制，单位KB |   5MB   |  Number
 
 ### pickerOptions Attributes
 | 参数         |  说明  |  可选值  |   类型 
