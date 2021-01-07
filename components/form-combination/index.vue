@@ -155,7 +155,7 @@
               </el-divider>
             </div>
             <div v-if="configs.type === 'image'">
-              <div class="image-view">
+              <div class="image-view" v-if="!configs.action">
                 <el-image 
                   :style="{
                     width: (configs.hasOwnProperty('width') ? `${configs.width}px` : 'auto'),
@@ -165,6 +165,25 @@
                   :preview-src-list="Array.isArray(FormData[configs.previewkeys || configs.keys]) ? FormData[configs.previewkeys || configs.keys] : [FormData[configs.previewkeys || configs.keys]]"
                   :fit="configs.fit || 'contain'">
                 </el-image>
+              </div>
+              <div v-else>
+                <component
+                  v-model="FormData[configs.keys]"
+                  v-if="dynamicComponent.imageUpload"
+                  :multiple="configs.multiple"
+                  :data="configs.extraData"
+                  :showFileList="configs.showFileList"
+                  :limit="configs.limit"
+                  :name="configs.name"
+                  :accept="configs.accept"
+                  :description="configs.description"
+                  :validateEvent="configs.validateEvent"
+                  :size="configs.size"
+                  :is="dynamicComponent.imageUpload">
+                </component>
+                <el-divider content-position="left" v-else>
+                  <span class="no-text"><i class="el-icon-loading"></i> &nbsp;正在加载图片上传控件</span>
+                </el-divider>
               </div>
             </div>
             <div v-if="configs.type === 'video'">
@@ -177,7 +196,7 @@
                     height: (configs.hasOwnProperty('height') ? `${configs.height}px` : '120px')
                   }"
                   x5-playsinline
-                  autoplay="autoplay"
+                  :autoplay="configs.autoplay || false"
                   controls="true"
                   x-webkit-airplay="allow"
                   webkit-playsinline="true">
@@ -185,12 +204,17 @@
                 <span v-else class="text-warn"><i class="el-icon-warning-outline"></i> 该视频地址，暂无法播放</span>
               </div>
               <div v-else>
-                <video-upload
+                <component
                   v-model="FormData[configs.keys]"
+                  v-if="dynamicComponent.videoUpload"
                   :name="configs.name"
                   :limit="configs.limit"
-                  :action="configs.action">
-                </video-upload>
+                  :action="configs.action"
+                  :is="dynamicComponent.videoUpload">
+                </component>
+                <el-divider content-position="left" v-else>
+                  <span class="no-text"><i class="el-icon-loading"></i> &nbsp;正在加载视频上传控件</span>
+                </el-divider>
               </div>
             </div>
           </el-form-item>
@@ -204,7 +228,6 @@
 
 <script>
 import { getDictsList, getProvincesCity } from "@/api/loanContract/contract";
-import videoUpload from "./videoUpload";
 export default {
   name: "cardForm",
   props: {
@@ -250,7 +273,11 @@ export default {
       regionData: [],
       checkboxs: {},
       selectData: {},
-      DataRange: {}  // 时间区间选择器数据
+      DataRange: {},  // 时间区间选择器数据
+      dynamicComponent: {
+        videoUpload: null,
+        imageUpload: null
+      }
     }
   },
   computed: {
@@ -274,14 +301,14 @@ export default {
       const config = this.config, THIS = this;
       return new class {
         constructor() {
-          this.keys = { keydata: [], region: [] }
+          this.keys = { keydata: [], region: [], video: [], image: [] }
           const setConf = new Set(config)
           if(setConf.size > 0) this.init(setConf), THIS.loaded = true;
         }
         init(_confs, FUNC = ["getKeys", "daterange", "handelcheckbox", "remote", "cascaders"]) {    // 初始化需要针对config处理的逻辑在此处执行
           try {
             for (const iterator of _confs) FUNC.map(name => this[name] ? this[name](iterator) : null);
-            this.requests(["selects_get", "region_get"])
+            this.requests(["selects_get", "region_get", "handelDynamicComponent"])
           } catch (error) {
             console.warn(error)
             [THIS.isload, this.loadedMap.region] = [false, false]
@@ -293,6 +320,8 @@ export default {
         getKeys(config) {
           if(config.hasOwnProperty('keydata') && typeof config.keydata === 'string' && config.keydata !== '') this.keys.keydata.push(config.keydata);
           if(config.hasOwnProperty('type') && config.type === 'region') this.keys.region.push(config.keys);
+          if(config.hasOwnProperty('type' && 'action') && config.type === 'video' && config.action.trim() != '') this.keys.video.push(config);
+          if(config.hasOwnProperty('type' && 'action') && config.type === 'image' && config.action.trim() != '') this.keys.image.push(config);
         }
         remote(config) {   // 远程搜索方法开始检索远程数据
           if(config.hasOwnProperty('type' && '$remote') && config.type === 'remote' && typeof config.$remote === 'function') {
@@ -419,7 +448,16 @@ export default {
       }
     },
 
-    /********** 组件基础数据信息获取 **********/
+    /********** 组件初始化基础数据信息准备 **********/
+    handelDynamicComponent(keys) {
+      const { video, image } = keys
+      try {
+        if(video.length !== 0) this.dynamicComponent.videoUpload = require('./videoUpload').default;
+        if(image.length !== 0) this.dynamicComponent.imageUpload = require('./imageUpload').default;
+      } catch (error) {
+        console.dir(error)
+      }
+    },
     region_get(keys) {
       const keysArray = keys.region || [];
       if(keysArray.length > 0) {
@@ -441,9 +479,8 @@ export default {
         })
       }
     }
-    /********** 组件基础数据信息获取 **********/
-  },
-  components: { videoUpload }
+    /********** 组件初始化基础数据信息准备 **********/
+  }
 };
 </script>
 
