@@ -104,7 +104,14 @@ export default {
     { label: "贷款形式:", type: 'select', placeholder: "请选择贷款形式", rules: [{ required: true, message: '贷款形式不能为空', trigger: 'blur' }], disabled: false, keys: "loanform", keydata: "zx2_report_loan_issuance_form" },
     { label: "申请金额(元):", type: 'input', placeholder: "请输入申请金额(元)", rules: [{ required: true, message: '申请金额不能为空', trigger: 'blur' }], disabled: true, keys: "conttotalamt" },
     { label: "申请期限(月):", type: 'input', placeholder: "请输入申请期限(月)", rules: [{ required: true, message: '申请期限不能为空', trigger: 'blur' }], disabled: true, keys: "contterm" },
-    { label: "最长用款期限(月):", type: 'inputNumber', max: "contterm", rules: [{ required: true, message: '最长用款期限不能为空', trigger: 'blur' }], keys: "advismaxuseterm" },
+    { label: "最长用款期限(月):", type: 'inputNumber', max: "contterm", 
+      rules: [
+        { required: true, message: '最长用款期限不能为空', trigger: 'blur' },
+        { pattern: /^\+?[1-9]\d*$/, message: '最长用款期限不能为0' }
+      ],
+      step: 6,
+      keys: "advismaxuseterm"
+    },
     { label: "申请日期:", type: 'date', placeholder: "请输入申请日期", rules: [{ required: true, message: '申请日期不能为空', trigger: 'blur' }], disabled: true, keys: "begindate" },
     { label: "到期日期:", type: 'date', placeholder: "请输入到期日期", rules: [{ required: true, message: '到期日期不能为空', trigger: 'blur' }], disabled: true, keys: "enddate" },
     { label: "贷款方式:", type: 'select', placeholder: "请输入贷款方式", rules: [{ required: true, message: '贷款方式不能为空', trigger: 'blur' }], disabled: true, keys: "assukind", keydata: "contract_loan_assukind" },
@@ -116,8 +123,8 @@ export default {
     { label: "贷款用途:", type: 'select', placeholder: "请输入贷款用途", rules: [{ required: true, message: '贷款用途不能为空', trigger: 'blur' }], disabled: true, keys: "loanuse", keydata: "contract_loanuse" },
     { label: "贷款用途说明:", type: 'input', placeholder: "请输入贷款用途说明", disabled: false, keys: "loanusemark" },
     { label: "还款来源说明:", type: 'select', placeholder: "请选择来源说明", disabled: false, keys: "retudesc", keydata: "contract_repaymentExplain" },
-    { label: "管户客户经理:", type: 'input', placeholder: "请输入管户客户经理", rules: [{ required: true, message: '管户客户经理不能为空', trigger: 'blur' }], disabled: true, valueable: true, keys: "operid" },
-    { label: "管户机构:", type: 'input', placeholder: "请输入管户机构", rules: [{ required: true, message: '管户机构不能为空', trigger: 'blur' }], disabled: true, valueable: true, keys: "bankid" },
+    { label: "管户客户经理:", type: 'input', placeholder: "请输入管户客户经理", rules: [{ required: true, message: '管户客户经理不能为空', trigger: 'blur' }], disabled: false, keys: "operid" },
+    { label: "管户机构:", type: 'input', placeholder: "请输入管户机构", rules: [{ required: true, message: '管户机构不能为空', trigger: 'blur' }], disabled: false, keys: "bankid" },
     { 
       label: "银行卡卡号:",
       type: 'remote',
@@ -128,9 +135,11 @@ export default {
       rules: [{ required: true, message: '银行卡卡号不能为空', trigger: 'blur' }],
       keys: "easyLoanCard"
     },
+    { label: "用款主体:", type: 'select', keys: "useobject", rules: [{ required: true, message: '用款主体不能为空', trigger: 'blur' }], keydata: 'contract_useobject' },
     {
       label: "放款渠道:", type: 'checkbox', rules: [{ required: true, message: '放款渠道不能为空', trigger: 'blur' }], disabled: false, keys: "relechannelAarray", inline: true, 
       labelKey: "relechnnelLabel",
+      isIndeterminate: true,
       keydata: [
         { label: "信贷系统", id: 15 },
         { label: "核心柜面", id: 10 },
@@ -167,7 +176,7 @@ export default {
     { label: "保证担保类型:", type: 'text', rules: [{ required: true, message: '保证担保类型不能为空', trigger: 'blur' }], keys: "guaranteetype", keydata: "contract_ensutype" },
     { label: "担保币种:", type: 'input', placeholder: "请输入担保币种", rules: [{ required: true, message: '担保币种不能为空', trigger: 'blur' }], disabled: true, keys: "assusign" },
     { label: "已提供担保额:", type: 'input', placeholder: "请输入已提供担保额", rules: [{ required: true, message: '已提供担保额不能为空', trigger: 'blur' }], keys: "assuuseamt", suffix: "元" },
-    { label: "担保金额(元):", type: 'input', placeholder: "请输入担保金额", rules: [{ required: true, message: '担保金额不能为空', trigger: 'blur' }], keys: "assuamt" },
+    { label: "担保金额(元):", type: 'input', placeholder: "请输入担保金额", rules: [{ required: true, message: '担保金额不能为空', trigger: 'blur' }], keys: "assuamt", inline: true },
     { label: "需要说明的情况:", type: 'textarea', placeholder: "请输入其他需要说明的情况", rules: [{ required: true, message: '需要说明的情况不能为空', trigger: 'blur' }], keys: "othremark", inline: true }
   ],
   mortgageinfo: [  // 押品信息
@@ -175,7 +184,7 @@ export default {
     { label: "押品名称:", type: 'input', rules: [{ required: true, message: '押品名称不能为空', trigger: 'blur' }], disabled: true, placeholder: "请输入押品名称", keys: "assuname" },
     { label: "担保方式:", type: 'select', rules: [{ required: true, message: '担保方式不能为空', trigger: 'blur' }], placeholder: "请选择担保方式", disabled: true, keys: "assutype", keydata: "contract_contassutype" },
     { label: "担保金额:", type: 'text', rules: [{ required: true, message: '担保金额不能为空', trigger: 'blur' }], placeholder: "请输入担保金额", keys: "assuamt", suffix: "元" },
-    { label: "押品类别编号:", type: 'input', rules: [{ required: true, message: '押品类别编号不能为空', trigger: 'blur' }], disabled: true, placeholder: "请输入押品类别编号", keys: "impakind" },
+    { label: "押品类别:", type: 'select', rules: [{ required: true, message: '押品类别编号不能为空', trigger: 'blur' }], placeholder: "请选择押品类别", keys: "impakind", labelkey: "assuname", keydata: "contract_impakind" },
     { label: "权利完整性:", type: 'select', rules: [{ required: true, message: '权利完整性不能为空', trigger: 'blur' }], placeholder: "请选择权利完整性", keys: "rightscardcomplete", keydata: "rightscardcomplete" },
     { label: "权利证书类型:", type: 'select', rules: [{ required: true, message: '权利证书类型不能为空', trigger: 'blur' }], placeholder: "请选择权利证书类型", disabled: true, keys: "impacertkind", keydata: "impacertkind" },
     { label: "权利证书号码:", type: 'input', rules: [{ required: true, message: '权利证书号码不能为空', trigger: 'blur' }], placeholder: "请输入权利证书号码", disabled: true, keys: "impacertno" },
@@ -209,8 +218,8 @@ export default {
     { label: "有无私家车库:", type: 'select', placeholder: "请选择有无私家车库", rules: [{ required: true, message: '有无私家车库不能为空', trigger: 'blur' }], keys: "havegarage", keydata: "contract_havenull" },
     { label: "有无土地使用权证:", type: 'select', placeholder: "请选择有无土地使用权证", rules: [{ required: true, message: '有无土地使用权证不能为空', trigger: 'blur' }], keys: "havelandcard", keydata: "contract_havenull" },
     { label: "土地使用权类型:", type: 'select', placeholder: "请选择土地使用权类型", rules: [{ required: true, message: '土地使用权类型不能为空', trigger: 'blur' }], keys: "landtype", keydata: "contract_landtype"},
-    { label: "土地使用权证书号:", type: 'input', placeholder: "请输入土地使用权证书号", keys: "landcardno", link: { key: "havelandcard", value: 0 } },
-    { label: "土地使用权期限:", type: 'daterange', placeholder: "请选择土地使用权期限", startkey: "landstartdate", endkey: "landenddate", link: { key: "havelandcard", value: 0 } },
+    { label: "土地使用权证书号:", type: 'input', placeholder: "请输入土地使用权证书号", keys: "landcardno", rules: [{ required: true, message: '土地使用权证书号不能为空', trigger: 'blur' }], link: { key: "havelandcard", value: 0 } },
+    { label: "土地使用权期限:", type: 'daterange', placeholder: "请选择土地使用权期限", keys: "landstartdate", startkey: "landstartdate", endkey: "landenddate", rules: [{ required: true, message: '土地使用权期限不能为空', trigger: 'blur' }], link: { key: "havelandcard", value: 0 } },
     { label: "购买时间:", type: 'date', placeholder: "请选择购买时间", rules: [{ required: true, message: '购买时间不能为空', trigger: 'blur' }], pickerOptions: {
       disabledDate: (time) => {
         let nowDate = new Date()
@@ -245,7 +254,7 @@ export default {
     { label: "贷款方式:", type: 'text', keys: "assukind", keydata: "contract_loan_assukind" },
     { label: "贷款质量:", type: 'text', keys: "riskflag", keydata: "contract_loan_assukind", keydata: "contract_loan_riskflag" },
     { label: "贷款用途:", type: 'text', keys: "loanuse", keydata: "contract_loanuse" },
-    { label: "放款渠道:", type: 'text', keys: "relechnnelLabel" },
+    { label: "放款渠道:", type: 'text', keys: "relechnnelLabel", inline: true },
     { label: "贷款用途说明:", type: 'text', keys: "loanusemark", inline: true },
     { label: "还款来源说明:", type: 'text', keys: "retudesc", inline: true, keydata: "contract_repaymentExplain" },
     { label: "贷款投向行业:", type: 'text', keys: "fundputName" },
@@ -256,15 +265,16 @@ export default {
     { label: "精准扶贫标识:", type: 'text', keys: "ispoor", keydata: 'contract_yesno' },
     { label: "用款主体:", type: 'text', keys: "useobject", keydata: 'contract_useobject' },
     { label: "劝耕贷:", type: 'text', keys: "land", keydata: 'contract_yesno' },
-    { label: "是否涉农贷款:", type: 'select', placeholder: "请选择是否涉农贷款", rules: [{ required: true, message: '是否涉农贷款不能为空', trigger: 'blur' }], keys: "isagriflag", keydata: 'contract_yesno', inline: true },
+    { label: "是否涉农贷款:", type: 'select', placeholder: "请选择是否涉农贷款", rules: [{ required: true, message: '是否涉农贷款不能为空', trigger: 'blur' }], disabled: true, keys: "isagriflag", keydata: 'contract_yesno', inline: true },
     { 
       label: "涉农贷款用途:", 
-      type: 'select', 
+      type: 'select',
+      disabled: true,
       placeholder: "请选择涉农贷款用途", 
       rules: [{ required: true, message: '涉农贷款用途不能为空', trigger: 'blur' }], 
       keys: "isagridesc", 
       link: { key: "isagriflag", value: 0 },
-      keydata: 'contract_isagridesc', 
+      keydata: 'contract_isagridesc',
       inline: true 
     }
   ],
@@ -288,7 +298,7 @@ export default {
   otherinfo: [    // 其他信息
     { label: "争议解决方式:", type: 'text', keys: "dispresokind", keydata: "contract_dispresokind" },
     { label: "主责任人:", type: 'text', keys: "liableperson" },
-    { label: "放款前提条件:", type: 'input', placeholder: "请输入放款前提条件", disabled: false, keys: "loanConditions", inline: true }
+    { label: "放款前提条件:", type: 'input', placeholder: "请输入放款前提条件", disabled: false, keys: "loanpermise", inline: true }
   ],
   guarantycontractinfo: [   // 担保合同信息
     { label: "担保方式:", type: 'text', keys: "assutype", keydata: "contract_contassutype" },
@@ -300,5 +310,3 @@ export default {
     { label: "担保金额(元):", type: 'text', keys: "assuamt" }
   ]
 }
-
-// JSON.stringify("{ disabledDate(time) => { return time.getTime() < Date.now() - 8.64e7 } }")

@@ -110,11 +110,19 @@
                 end-placeholder="结束时间"
                 range-separator="至"
                 :style="{width: '235px'}"
-                @change="daterangeChange($event, configs)">
+                @input="daterangeChange($event, configs)">
               </el-date-picker>
               <span class="text-warn" v-else>需要配置startkeys和endkeys</span>
             </div>
             <div v-if="configs.type === 'checkbox'">
+              <el-checkbox
+                v-if="configs.keydata && configs.keydata.length !== 0 && configs.isIndeterminate || false"
+                :indeterminate="checkboxs.indeterminate[configs.keys]"
+                v-model="checkboxs.checkAll[configs.keys]"
+                @change="checkboxAllChange($event, configs)"
+                class="checkbox-all">
+                全选
+              </el-checkbox>
               <el-checkbox-group v-model="FormData[configs.keys]" :disabled="disabled ? disabled : configs.disabled || false" :ref="configs.keys" @change="checkboxChange($event, configs)">
                 <el-checkbox v-for="(items, index) in configs.keydata || []" :key="index" :label="items.id">{{items.label}}</el-checkbox>
               </el-checkbox-group>
@@ -187,9 +195,10 @@
               </div>
             </div>
             <div v-if="configs.type === 'video'">
-              <div class="video-view" v-if="!configs.action">
+              <div class="video-view" v-if="!configs.action" @dblclick="$refs[`video-${configs.keys}`][0] ? $refs[`video-${configs.keys}`][0].play() : null">
                 <video
                   v-if="FormData[configs.keys]"
+                  :ref="`video-${configs.keys}`"
                   :src="FormData[configs.keys]"
                   :style="{
                     width: (configs.hasOwnProperty('width') ? `${configs.width}px` : '240px'),
@@ -271,7 +280,7 @@ export default {
       loadedMap: { region: true },
       treeselectLoaded: false,
       regionData: [],
-      checkboxs: {},
+      checkboxs: { indeterminate: {}, checkAll: {} },  // checkbox数据集
       selectData: {},
       DataRange: {},  // 时间区间选择器数据
       dynamicComponent: {
@@ -380,6 +389,7 @@ export default {
     },
 
     daterangeChange(value, config) {    // 监控时间区间选择器数据
+      console.log(value, config)
       if(value && value.length !== 0) {
         this.FormData = Object.assign(this.FormData, { [config.startkey]: value[0], [config.endkey]: value[1] })
         this.fixedPinterclearValidate(config)
@@ -389,14 +399,27 @@ export default {
     },
 
     checkboxChange(value, config) {   // 监控checkbox数据
+      this.$set(this.checkboxs.indeterminate, config.keys, value.length > 0 && value.length < config.keydata.length)
+      this.$set(this.checkboxs.checkAll, config.keys, value.length === config.keydata.length)
+      this.handelExtraKey(value, config)
+    },
+    handelExtraKey(value, config) {
       if(config.hasOwnProperty('labelKey') && config.labelKey) {
         const checkboxs = config.keydata || [];
         if(value && Array.isArray(value) && value.length !== 0) {
           let labelString = new Array
           value.forEach(element => checkboxs.find(is => is.id == element) ? labelString.push(checkboxs.find(is => is.id == element).label) : null);
           this.FormData[config.labelKey] = labelString.join("-")
+        } else {
+          this.FormData[config.labelKey] = ""
         }
       }
+    },
+    checkboxAllChange(value, config) {
+      const alls = config.keydata.map(item => item.id);
+      this.FormData[config.keys] = value ? alls : [];
+      this.checkboxs.indeterminate[config.keys] = false;
+      this.handelExtraKey(this.FormData[config.keys], config);
     },
 
     selectChange(value, config) {   // 监控表单select数据更改
@@ -530,6 +553,9 @@ h5 {
     font-size: 12px;
     user-select: none;
     color: #aaa;
+  }
+  .checkbox-all {
+    margin-bottom: 5px;
   }
   /deep/ .el-card__header {
     padding: 15px 20px;
