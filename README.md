@@ -33,6 +33,7 @@
 | pickerOptions |  当前时间日期选择器特有的选项，详细参考**pickerOptions Attributes**  |   -   |  Object  |  -
 | max |  步进器特有字段用于控制步进器的最大值（当max为string时则会匹配表单内字段，为Number时最大值则为该Number）  |   -   |  String/Number  |  -
 | labelKey |  自定义额外后台，当type为checkbox和region时通常传输的值为checkbox的id和region的地区码，特殊业务在需要id和地区码的同时还需要他们选中的文字信息，此时则需要labelKey指定后台对应的接受字段（checkbox为-拼接字符串、region为/拼接字符串）  |   -   |  String  |  -
+| isIndeterminate |  type为checkbox特有属性，true为开启全选  |   true/false   |  boolean  |  -
 
 ### config type(image/video) Attributes
 | 参数         |  说明  |  默认值  |   类型 
