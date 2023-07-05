@@ -260,7 +260,7 @@
 </template>
 
 <script>
-import cardForm from "@/components/cardForm"
+import cardForm from "@/components/FormKit"
 import config from "./config.js"
 import { queryCustInfo, queryContractInfo, updateCustInfo, contractCust, updateContractInfo, getDictsList, getCreditHistory, submitContract, getCompanyInfo } from "@/api/loanContract/contract";
 export default {
