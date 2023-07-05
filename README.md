@@ -1,4 +1,4 @@
-# form-combination组件
+# FormKit组件
 基于vue-element表单组件进行的组合封装，通过数据流方式将表单数据化，项目基于vue-elementUI
 ## 参数使用说明
 
